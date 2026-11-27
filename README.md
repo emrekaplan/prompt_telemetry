@@ -1,6 +1,5 @@
 # Prompt Telemetry
 
-One SQLite row per prompt for **Claude Code** and **GitHub Copilot**: tokens, cost, latency, model, tool count.
 Python 3.11+, stdlib only. Nothing listens on a port and nothing leaves the machine.
 
 ## About
