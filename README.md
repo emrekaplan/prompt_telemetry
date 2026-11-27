@@ -1,6 +1,5 @@
 # Prompt Telemetry
 
-One SQLite row per prompt for **Claude Code** and **GitHub Copilot**: tokens, cost, latency, model, tool count.
 Python 3.11+, stdlib only. Nothing listens on a port and nothing leaves the machine.
 
 ## About
@@ -47,10 +46,6 @@ prompt_telemetry init             # creates the DB (WAL, 0600) and prints the co
 - Copilot `input_tokens` is assumed to include cached tokens and is normalized to the uncached remainder; verify on a recorded fixture.
 - Besides the five planned tables there are two helpers: `tool_calls` (dedupes tool uses for idempotent re-imports) and `otel_roots` (root-span totals for the cross-check, logged to `errors.log` on mismatch).
 - The `claude-sonnet-4-x` seed row is stored as prefix `claude-sonnet-4`. Verify seed prices before relying on them.
-
-## Upgrading from `agentlog`
-
-This project was previously named `agentlog`. Old data (`~/.local/share/agentlog`), `AGENTLOG_*` env vars, the `agentlog` hook command and `~/.copilot/hooks/agentlog.json` are no longer read. Move the data dir to `~/.local/share/prompt_telemetry` (and rename `agentlog.db` to `prompt_telemetry.db`), rename the env vars to `PROMPT_TELEMETRY_*`, then re-run `prompt_telemetry init` and update your hook config.
 
 ## Tests
 
