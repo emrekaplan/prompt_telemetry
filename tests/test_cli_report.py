@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from prompt_telemetry import cli, db, report
+from prompt_telemetry import claude, cli, db, report
 from test_prompt_telemetry import claude_entry, run_hook, wjsonl, Patcher
 
 
@@ -100,6 +100,25 @@ class CliReportTests(unittest.TestCase):
         conn.close()
         self.assertEqual(before, after)
 
+    def test_rescan_skips_missing_source_files(self):
+        run_cli(["init"])
+        conn = db.connect()
+        conn.execute(
+            "INSERT INTO file_offsets(path, kind) VALUES (?, 'claude_transcript')",
+            (str(self.tmp_path / "missing.jsonl"),),
+        )
+        report.rescan(conn)
+        conn.close()
+
+    def test_report_sync_logs_import_errors(self):
+        conn = db.connect()
+        with mock.patch.object(report.copilot, "import_all", side_effect=OSError("unreadable")), \
+                mock.patch.object(report.db, "log_error") as log_error:
+            report.sync(conn)
+        conn.close()
+        log_error.assert_called_once()
+        self.assertIn("import before report", log_error.call_args.args[0])
+
     def test_doctor_without_db(self):
         _, out = run_cli(["doctor"])
         self.assertIn("WARN db missing", out)
@@ -152,6 +171,9 @@ class CliReportTests(unittest.TestCase):
                 contextlib.redirect_stdout(io.StringIO()), self.assertRaises(SystemExit) as cm:
             runpy.run_module("prompt_telemetry", run_name="__main__")
         self.assertEqual(cm.exception.code, 0)
+
+    def test_git_info_without_directory(self):
+        self.assertEqual(claude.git_info(None), (None, None))
 
 
 if __name__ == "__main__":
