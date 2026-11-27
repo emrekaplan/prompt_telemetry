@@ -81,11 +81,11 @@ CREATE TABLE IF NOT EXISTS otel_roots (
 
 
 def home() -> str:
-    return os.environ.get("AGENTLOG_HOME") or os.path.expanduser("~/.local/share/agentlog")
+    return os.environ.get("PROMPT_TELEMETRY_HOME") or os.path.expanduser("~/.local/share/prompt_telemetry")
 
 
 def db_path() -> str:
-    return os.path.join(home(), "agentlog.db")
+    return os.path.join(home(), "prompt_telemetry.db")
 
 
 def otel_dir() -> str:
@@ -122,7 +122,7 @@ def secure_files():
 
 
 def capture_mode() -> str:
-    mode = os.environ.get("AGENTLOG_CAPTURE")
+    mode = os.environ.get("PROMPT_TELEMETRY_CAPTURE")
     if not mode:
         try:
             with open(os.path.join(home(), "config.json"), encoding="utf-8") as f:

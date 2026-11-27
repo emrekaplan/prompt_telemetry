@@ -80,10 +80,10 @@ def rescan(conn):
 
 def doctor(conn_factory):
     ok = lambda b: "ok  " if b else "WARN"  # noqa: E731
-    print(f"agentlog home: {db.home()}")
+    print(f"prompt_telemetry home: {db.home()}")
     path = db.db_path()
     if not os.path.exists(path):
-        print(f"WARN db missing: run `agentlog init`")
+        print(f"WARN db missing: run `prompt_telemetry init`")
         return
     for p in (path, path + "-wal", path + "-shm"):
         if os.path.exists(p):
@@ -92,11 +92,11 @@ def doctor(conn_factory):
     claude_cfg = os.path.expanduser("~/.claude/settings.json")
     try:
         with open(claude_cfg, encoding="utf-8") as f:
-            installed = "agentlog" in f.read()
+            installed = "prompt_telemetry" in f.read()
     except OSError:
         installed = False
     print(f"{ok(installed)} Claude hooks in {claude_cfg}")
-    hooks = os.path.expanduser("~/.copilot/hooks/agentlog.json")
+    hooks = os.path.expanduser("~/.copilot/hooks/prompt_telemetry.json")
     print(f"{ok(os.path.exists(hooks))} Copilot CLI hooks (optional) at {hooks}")
     env = os.environ.get("COPILOT_OTEL_FILE_EXPORTER_PATH")
     print(f"{ok(bool(env))} COPILOT_OTEL_FILE_EXPORTER_PATH = {env or '(unset)'}")

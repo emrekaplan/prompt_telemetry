@@ -3,17 +3,17 @@ import sys
 
 CLAUDE_HOOKS = {
     "hooks": {
-        "UserPromptSubmit": [{"hooks": [{"type": "command", "command": "agentlog", "args": ["hook", "claude"], "timeout": 5}]}],
-        "Stop": [{"hooks": [{"type": "command", "command": "agentlog", "args": ["hook", "claude"], "async": True}]}],
-        "SubagentStop": [{"matcher": "*", "hooks": [{"type": "command", "command": "agentlog", "args": ["hook", "claude"], "async": True}]}],
-        "SessionEnd": [{"matcher": "*", "hooks": [{"type": "command", "command": "agentlog", "args": ["hook", "claude"], "timeout": 2}]}],
+        "UserPromptSubmit": [{"hooks": [{"type": "command", "command": "prompt_telemetry", "args": ["hook", "claude"], "timeout": 5}]}],
+        "Stop": [{"hooks": [{"type": "command", "command": "prompt_telemetry", "args": ["hook", "claude"], "async": True}]}],
+        "SubagentStop": [{"matcher": "*", "hooks": [{"type": "command", "command": "prompt_telemetry", "args": ["hook", "claude"], "async": True}]}],
+        "SessionEnd": [{"matcher": "*", "hooks": [{"type": "command", "command": "prompt_telemetry", "args": ["hook", "claude"], "timeout": 2}]}],
     }
 }
 
 COPILOT_HOOKS = {
     "version": 1,
     "hooks": {
-        ev: [{"type": "command", "exec": "agentlog", "args": ["hook", "copilot"], "timeoutSec": 5}]
+        ev: [{"type": "command", "exec": "prompt_telemetry", "args": ["hook", "copilot"], "timeoutSec": 5}]
         for ev in ("userPromptSubmitted", "agentStop", "sessionEnd")
     },
 }
@@ -33,7 +33,7 @@ def _init(args):
         print(json.dumps(CLAUDE_HOOKS, indent=2))
     if args.copilot or both:
         otel = db.otel_dir()
-        print("\n# Copilot CLI: add to your shell profile (agentlog never edits it)")
+        print("\n# Copilot CLI: add to your shell profile (prompt_telemetry never edits it)")
         print(f"export COPILOT_OTEL_FILE_EXPORTER_PATH={otel}/copilot-cli.jsonl")
         print("# Leave COPILOT_OTEL_CAPTURE_CONTENT unset/off.")
         print("\n# VS Code Copilot Chat: settings.json")
@@ -41,7 +41,7 @@ def _init(args):
             "github.copilot.chat.otel.enabled": True,
             "github.copilot.chat.otel.exporterType": "file",
             "github.copilot.chat.otel.outfile": f"{otel}/vscode.jsonl"}, indent=2))
-        print("\n# Optional Copilot CLI hooks (prompt preview + import trigger): ~/.copilot/hooks/agentlog.json")
+        print("\n# Optional Copilot CLI hooks (prompt preview + import trigger): ~/.copilot/hooks/prompt_telemetry.json")
         print(json.dumps(COPILOT_HOOKS, indent=2))
 
 
@@ -52,7 +52,7 @@ def main(argv=None):
         return run(argv[1:])
 
     import argparse
-    ap = argparse.ArgumentParser(prog="agentlog", description="Per-prompt telemetry for Claude Code and Copilot")
+    ap = argparse.ArgumentParser(prog="prompt_telemetry", description="Per-prompt telemetry for Claude Code and Copilot")
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("init", help="create the DB and print config snippets")
     p.add_argument("--claude", action="store_true")

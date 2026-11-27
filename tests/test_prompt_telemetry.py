@@ -8,8 +8,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from agentlog import claude, copilot, db, hook, redact, report
-from agentlog.prices import lookup, price_call
+from prompt_telemetry import claude, copilot, db, hook, redact, report
+from prompt_telemetry.prices import lookup, price_call
 
 
 class Patcher:
@@ -41,7 +41,7 @@ def case(fn):
     def method(self):
         with tempfile.TemporaryDirectory() as d:
             mp = Patcher()
-            mp.setenv("AGENTLOG_HOME", str(Path(d) / "home"))
+            mp.setenv("PROMPT_TELEMETRY_HOME", str(Path(d) / "home"))
             os.environ.pop("COPILOT_OTEL_FILE_EXPORTER_PATH", None)
             conn = db.connect()
             try:
@@ -288,7 +288,7 @@ def copilot_unmatched_hook_aborts(conn, tmp_path, monkeypatch):
     assert conn.execute("SELECT status, input_tokens FROM prompts WHERE prompt_id LIKE 'cph:%'").fetchone() == ("aborted", 0)
 
 
-class AgentlogTests(unittest.TestCase):
+class PromptTelemetryTests(unittest.TestCase):
     pass
 
 
@@ -296,7 +296,7 @@ for _fn in (price_lookup_prefix_and_tiers, redaction, claude_flow, claude_hook_g
             hooks_never_fail, copilot_import_shapes_and_idempotency, copilot_unknown_model_and_missing_root,
             copilot_hook_join_two_sessions, copilot_join_never_guesses_when_ambiguous,
             copilot_unmatched_hook_aborts):
-    setattr(AgentlogTests, "test_" + _fn.__name__, _fn if _fn is redaction else (lambda self, f=_fn: f(self)))
+    setattr(PromptTelemetryTests, "test_" + _fn.__name__, _fn if _fn is redaction else (lambda self, f=_fn: f(self)))
 
 if __name__ == "__main__":
     unittest.main()
